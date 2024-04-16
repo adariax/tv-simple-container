@@ -3,12 +3,13 @@
 V_PATH=.
 ROOTFS_PATH=./shared/rootfs.tar
 
+MOUNT_PATH=$V_PATH/mnt/$1
+
 virt_storage_device () {
     # create virtual storage device using file as image
     # it will contain file system info and other data.
     local image=$V_PATH/$1.img
-    local mount_path=$V_PATH/mnt/$1
-    
+ 
     local size=1G
 
     # create a  zeroed image file -> loop device
@@ -21,14 +22,25 @@ virt_storage_device () {
     mkfs -t ext4 $loop_device
 
     # mount virtual storage device for specific point
-    mkdir -p $mount_path
-    mount $loop_device $mount_path
+    mkdir -p $MOUNT_PATH
+    mount $loop_device $MOUNT_PATH
 
     # test
-    touch $mount_path/test_file
+    touch $MOUNT_PATH/test_file
 
     # rootfs from tar to mountpoint
-    tar -xf $ROOTFS_PATH -C $mount_path
+    tar -xf $ROOTFS_PATH -C $MOUNT_PATH
 }
 
-virt_storage_device $1
+
+virt_storage_device $1  # name
+
+setup_path="export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# run
+user_cmd="${@:2}"  # other params (cmd)
+full_cmd="$setup_path ; $user_cmd"
+cgroups="cpu,memory"
+
+cgcreate -g "$cgroups:$1"
+cgexec -g "$cgroups:$1" chroot $MOUNT_PATH /bin/bash -c "$full_cmd" || true
