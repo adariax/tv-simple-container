@@ -7,7 +7,7 @@ MOUNT_PATH=$V_PATH/mnt/$1
 
 virt_storage_device () {
     # create virtual storage device using file as image
-    # it will contain file system info and other data.
+    # it will contain file system info and other data
     local image=$V_PATH/$1.img
  
     local size=1G
@@ -43,4 +43,9 @@ full_cmd="$setup_path ; $user_cmd"
 cgroups="cpu,memory"
 
 cgcreate -g "$cgroups:$1"
-cgexec -g "$cgroups:$1" chroot $MOUNT_PATH /bin/bash -c "$full_cmd" || true
+
+# run program in new namespaces, isolation of network and PID namespace + fork
+isolation_cmd="unshare -n -p -f"
+
+# run
+cgexec -g "$cgroups:$1" $isolation_cmd chroot $MOUNT_PATH /bin/bash -c "$full_cmd" || true
