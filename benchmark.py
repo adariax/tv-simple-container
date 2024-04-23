@@ -1,4 +1,4 @@
-# by @dmfrpro https://t.me/dmfrpro
+# by @dmfrpro https://t.me/dmfrpro + my mods
 
 from statistics import mean
 
@@ -70,7 +70,7 @@ class Table:
 
 def next_line(iterator: t.Iterator[str]) -> list:
     line = next(iterator).strip().split()
-    print(line)
+    # print(line)
     return line
 
 
@@ -176,7 +176,7 @@ def test_fileio(iterator: t.Iterator[str]) -> list:
     return res
 
 
-def benchmark(func: ParseFunc, cmd: str, cols: list, n: int = 10) -> Table:
+def benchmark(func: ParseFunc, cmd: str, cols: list, n: int = 5) -> Table:
     table = Table(cols)
 
     for _ in range(n):
@@ -189,14 +189,14 @@ def benchmark(func: ParseFunc, cmd: str, cols: list, n: int = 10) -> Table:
 if __name__ == "__main__":
     lines = []
 
-    cmd_cpu = "sysbench cpu --threads=100 --time=60 --cpu-max-prime=64000 run"
+    cmd_cpu = "sysbench cpu --threads=4 --time=60 --cpu-max-prime=64000 run"
     table_cpu = benchmark(test_primes, cmd_cpu, ["CPU events/s"] + COMMON_LABELS)
 
     lines.append(f"`{cmd_cpu}`")
     lines.append(str(table_cpu))
 
     cmd_threads = (
-        "sysbench threads --threads=64 --thread-yields=100 --thread-locks=2 run"
+        "sysbench threads --threads=16 --thread-yields=64 --thread-locks=2 run"
     )
     table_threads = benchmark(test_threads, cmd_threads, COMMON_LABELS)
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     lines.append(str(table_threads))
 
     cmd_random_memory = (
-        "sysbench memory --threads=100 --time=60 --memory-oper=write run"
+        "sysbench memory --threads=4 --time=60 --memory-oper=write run"
     )
     table_random_memory = benchmark(
         test_memory,
@@ -227,16 +227,16 @@ if __name__ == "__main__":
     lines.append(f"`{cmd_memory_speed}`")
     lines.append(str(table_memory_speed))
 
-    sysbench_output_iter("sysbench fileio --file-total-size=10G prepare")
+    sysbench_output_iter("sysbench fileio --file-total-size=1G prepare")
 
-    cmd_fileio = "sysbench fileio --file-total-size=10G --file-test-mode=rndrw --time=120 --time=300 --max-requests=0 run"
+    cmd_fileio = "sysbench fileio --file-total-size=1G --file-test-mode=rndrw --time=120 --time=300 --max-requests=0 run"
 
     table_fileio = benchmark(test_fileio, cmd_fileio, FILEIO_LABELS + COMMON_LABELS)
 
     lines.append(f"`{cmd_fileio}`")
     lines.append(str(table_fileio))
 
-    sysbench_output_iter("sysbench fileio --file-total-size=10G cleanup")
+    sysbench_output_iter("sysbench fileio --file-total-size=1G cleanup")
 
     with open("report.md", "w") as file:
         file.write("\n\n".join(lines))

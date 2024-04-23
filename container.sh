@@ -1,7 +1,7 @@
 #!/bin/bash
 
 V_PATH=.
-ROOTFS_PATH=./shared/rootfs.tar
+ROOTFS_PATH=./rootfs.tar
 
 MOUNT_PATH=$V_PATH/mnt/$1
 
@@ -24,7 +24,7 @@ virt_storage_device () {
     # create virtual storage device using file as image
     # it will contain file system info and other data
 
-    local size=1G
+    local size=11G
 
     # create a  zeroed image file -> loop device
     dd if=/dev/zero of=$image bs=$size count=1
@@ -65,7 +65,7 @@ cgroups="cpu,memory"
 
 cgcreate -g "$cgroups:$1"
 
-# run program in new namespaces, isolation of network and PID namespace + fork
+# run program in separate namespaces, isolation of network and PID namespace + forked
 isolation_cmd="unshare -n -p -f"
 
 # run
