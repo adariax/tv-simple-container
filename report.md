@@ -39,7 +39,7 @@ information and all contents
 
 | Metric | Sysbench command | Why this command | What is interesting in sysbench output |
 |---|---|---|---|
-| CPU computation test | `sysbench cpu --threads=4 --time=60 --cpu-max-prime=64000 run` | loads all CPU cores excessively; I expect to see difference between total time in different containers | total time |
+| CPU computation test | `sysbench cpu --threads=4 --time=60 --cpu-max-prime=64000 run` | loads all CPU cores excessively; I expect to see difference between total time in different containers | CPU events/sec |
 | Threads | `sysbench threads --threads=16 --thread-yields=64 --thread-locks=2 run` | mutex performance which is important in case of testing performance in concurrent env; metrics show how well the system handles multiple threads accessing shared resources concurrently | total number of events, events avg and stddev |
 | Memory concurrent write test | `sysbench memory --threads=4 --time=60 --memory-oper=write run` | memory write access with concurrent env + test paging + impact on memory transfer rate | memory speed |
 | Memory stress test | `sysbench memory --memory-block-size=1M --memory-total-size=10G run` | memory write access + continuously filling it up to 1G | memory speed |
